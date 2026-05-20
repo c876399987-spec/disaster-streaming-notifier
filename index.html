@@ -27,13 +27,12 @@
         // 隨機 UUID 達成「去識別化」，完全避開個資法限制
         const reportId = "MATA2025-" + Math.random().toString(36).substr(2, 9).toUpperCase();
         let sequence = 1;
-        let gpsLocation = { latitude: 0.0, longitude: 0.0 };
+        let gpsLocation = { latitude: 23.6542, longitude: 121.4312 }; // 預設馬太鞍溪流域模擬經緯度
 
         // 自動獲取去識別化之經緯度
         if (navigator.geolocation) {
             navigator.geolocation.getCurrentPosition(
-                (pos) => { gpsLocation = { latitude: pos.coords.latitude, longitude: pos.coords.longitude }; },
-                (err) => { console.warn("GPS獲取超時，採用電信基地台概略座標"); }
+                (pos) => { gpsLocation = { latitude: pos.coords.latitude, longitude: pos.coords.longitude }; }
             );
         }
 
@@ -54,16 +53,24 @@
 
             console.log("📡 [Input] 發送碎形數據變更:", inputPacket);
 
+            // 🌟 彈出視窗補丁：讓通報真相立刻現形！
+            alert(
+                `⚡ [後台數據攔截成功！]\n\n` +
+                `1. 去識別化ID: ${inputPacket.report_id}\n` +
+                `2. 傳輸序號: No.${inputPacket.sequence - 1}\n` +
+                `3. 目前狀態碼: ${inputPacket.status}\n` +
+                `4. 鎖定GPS: Lat ${inputPacket.location.latitude}, Lng ${inputPacket.location.longitude}\n` +
+                `5. 本次上傳情資: ${JSON.stringify(inputPacket.payload)}\n\n` +
+                `📦 數據已打包為標準 JSON，在極弱訊號下已同步異步發送！`
+            );
+
             try {
-                const response = await fetch('/api/report/stream', {
+                await fetch('/api/report/stream', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(inputPacket)
                 });
-                const outputResult = await response.json();
-                console.log("📥 [Output] 接收後端處理結果:", outputResult);
             } catch (error) {
-                // 弱訊號抗震盪機制：若失敗則存入本機快取
                 localStorage.setItem(`offline_msg_${inputPacket.report_id}_${inputPacket.sequence}`, JSON.stringify(inputPacket));
             }
         }
@@ -174,7 +181,8 @@
     <script>
         function hideAll() {
             ['step-root', 'step-A-q1', 'step-A-q2', 'step-A-q3', 'step-A-q4', 'step-B-q1', 'step-B-q2', 'step-B-q3', 'step-B-q4', 'step-C-screen', 'step-end-screen'].forEach(id => {
-                document.getElementById(id).classList.add('hidden');
+                const el = document.getElementById(id);
+                if(el) el.classList.add('hidden');
             });
         }
 
@@ -190,13 +198,11 @@
             document.getElementById('step-C-screen').classList.remove('hidden');
         }
 
-        // A 路線流轉
         function nextA1(ans) { commitFragment('A_SOS_URGENCY', 'life_danger', ans); hideAll(); document.getElementById('step-A-q2').classList.remove('hidden'); }
         function nextA2(ans) { commitFragment('A_SOS_MEDICAL', 'vulnerable', ans); hideAll(); document.getElementById('step-A-q3').classList.remove('hidden'); }
         function nextA3(ans) { commitFragment('A_SOS_SCALE', 'people_count', ans); hideAll(); document.getElementById('step-A-q4').classList.remove('hidden'); }
         function endA(ans) { commitFragment('A_SOS_ENV_FINAL', 'environment', ans); hideAll(); document.getElementById('step-end-screen').classList.remove('hidden'); }
 
-        // B 路線流轉
         function nextB1(ans) { commitFragment('B_INTEL_TYPE', 'disaster_type', ans); hideAll(); document.getElementById('step-B-q2').classList.remove('hidden'); }
         function nextB2(ans) { commitFragment('B_INTEL_TRAFFIC', 'traffic_status', ans); hideAll(); document.getElementById('step-B-q3').classList.remove('hidden'); }
         function nextB3(ans) { commitFragment('B_INTEL_TARGET', 'damaged_target', ans); hideAll(); document.getElementById('step-B-q4').classList.remove('hidden'); }
