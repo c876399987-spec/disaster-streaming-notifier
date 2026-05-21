@@ -36,12 +36,11 @@
             );
         }
 
-        // 核心 I/O 處理：碎形化增量傳輸函式 (點一題、送一題)
+// 核心 I/O 處理：碎形化增量傳輸函式 (點一題、彈一窗、送雲端)
         async function commitFragment(status, key = null, value = null) {
             const payloadData = {};
             if (key && value) { payloadData[key] = value; }
 
-            // 符合簡章規定的標準化 JSON 資料交換格式 (Input 規格)
             const inputPacket = {
                 report_id: reportId,
                 sequence: sequence++,
@@ -51,24 +50,33 @@
                 payload: payloadData
             };
 
-            console.log("📡 [Input] 發送碎形數據變更:", inputPacket);
+            console.log("📡 [Input] 發送碎形數據:", inputPacket);
 
-            // 🌟 彈出視窗補丁：讓通報真相立刻現形！
+            // 🌟 核心加強版彈出視窗
             alert(
-                `⚡ [後台數據攔截成功！]\n\n` +
-                `1. 去識別化ID: ${inputPacket.report_id}\n` +
-                `2. 傳輸序號: No.${inputPacket.sequence - 1}\n` +
-                `3. 目前狀態碼: ${inputPacket.status}\n` +
-                `4. 鎖定GPS: Lat ${inputPacket.location.latitude}, Lng ${inputPacket.location.longitude}\n` +
-                `5. 本次上傳情資: ${JSON.stringify(inputPacket.payload)}\n\n` +
-                `📦 數據已打包為標準 JSON，在極弱訊號下已同步異步發送！`
+                `⚡ [防災積木數據交換成功！]\n\n` +
+                `🆔 去識別化專屬 ID:\n   ${inputPacket.report_id}\n\n` +
+                `📦 本次上傳的情資欄位 (Payload):\n   ${JSON.stringify(inputPacket.payload)}\n\n` +
+                `💡 說明：數據即將同步發射至雲端假後台資料庫！`
             );
 
             try {
-                await fetch('/api/report/stream', {
-                    method: 'POST',
+                // 🔥【將下方網址替換為你在 Firebase 複製的資料庫網址】🔥
+                // 我們利用 /reports/${reportId}.json 的結構，讓同一個人的資料會自動 UPSERT 疊加在一起！
+                const firebaseURL = `https://mata-disaster-db-default-rtdb.firebaseio.com/reports/${reportId}.json`;
+                
+                await fetch(firebaseURL, {
+                    method: 'PATCH', // 使用 PATCH 才能做到碎形數據增量疊加
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(inputPacket)
+                    body: JSON.stringify({
+                        report_id: reportId,
+                        latest_status: status,
+                        latitude: gpsLocation.latitude,
+                        longitude: gpsLocation.longitude,
+                        updated_at: new Date().toISOString(),
+                        // 動態把新回答的情資揉進雲端
+                        [`accumulated_intel/${key || 'init'}`]: value || 'initialized'
+                    })
                 });
             } catch (error) {
                 localStorage.setItem(`offline_msg_${inputPacket.report_id}_${inputPacket.sequence}`, JSON.stringify(inputPacket));
