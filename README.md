@@ -50,7 +50,7 @@
 ```
 
 ---
-###📤 後端聚合格式 (Output Open Data)
+### 📤 後端聚合格式 (Output Open Data)
 ```json
 {
   "report_id": "MATA2025-X7R9B2K",
