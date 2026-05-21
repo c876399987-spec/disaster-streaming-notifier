@@ -51,7 +51,7 @@
 
 ---
 ###📤 後端聚合格式 (Output Open Data)
-
+```json
 {
   "report_id": "MATA2025-X7R9B2K",
   "latitude": 23.6542, "longitude": 121.4312,
