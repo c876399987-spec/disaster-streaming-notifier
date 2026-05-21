@@ -48,7 +48,7 @@
   "payload": { "life_danger": "💀 有, 水要淹沒立足點" }
 }
 
-### 📤 後端聚合格式 (Output Open Data)
+📤 後端聚合格式 (Output Open Data)
 
 ```json
 {
