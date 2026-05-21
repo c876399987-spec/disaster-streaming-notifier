@@ -63,7 +63,7 @@
 
             try {
                 // 🔥【請在此處替換為你建立的 Firebase 資料庫網址】🔥
-                const firebaseURL = `https://【你的Firebase資料庫網址】.firebaseio.com/reports/${reportId}.json`;
+                const firebaseURL = `https://mata-disaster-db-default-rtdb.firebaseio.com/reports/${reportId}.json`;
                 
                 await fetch(firebaseURL, {
                     method: 'PATCH', // 使用 PATCH 做到碎形數據增量疊加
