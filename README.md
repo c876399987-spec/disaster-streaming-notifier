@@ -47,10 +47,8 @@
   "location": { "latitude": 23.6542, "longitude": 121.4312 },
   "payload": { "life_danger": "💀 有, 水要淹沒立足點" }
 }
----
-### 📤 後端聚合格式 (Output Open Data)
+📤 後端聚合格式 (Output Open Data)
 
-```json
 {
   "report_id": "MATA2025-X7R9B2K",
   "latitude": 23.6542, "longitude": 121.4312,
