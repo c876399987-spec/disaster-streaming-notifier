@@ -11,7 +11,7 @@
 我們已經把前端 UI 和雲端資料庫（Firebase）完全打通了，**請評審同時打開這兩個網址測試**
 
 *  **災民通報前端（請用手機點）：** https://c876399987-spec.github.io/disaster-streaming-notifier/
-]
+
 * **應變中心後台（請用電腦看）：** https://c876399987-spec.github.io/disaster-streaming-notifier/admin.html
 
 > **30秒評審親測指南：**
