@@ -24,19 +24,20 @@
 <body>
 
     <script>
-        // 隨機 UUID 達成「去識別化」，完全避開個資法限制
+        // 1. 隨機 UUID 達成「去識別化」
         const reportId = "MATA2025-" + Math.random().toString(36).substr(2, 9).toUpperCase();
         let sequence = 1;
-        let gpsLocation = { latitude: 23.6542, longitude: 121.4312 }; // 預設馬太鞍溪流域模擬經緯度
+        
+        // 2. 預設馬太鞍溪流域模擬經緯度
+        let gpsLocation = { latitude: 23.6542, longitude: 121.4312 }; 
 
-        // 自動獲取去識別化之經緯度
         if (navigator.geolocation) {
             navigator.geolocation.getCurrentPosition(
                 (pos) => { gpsLocation = { latitude: pos.coords.latitude, longitude: pos.coords.longitude }; }
             );
         }
 
-// 核心 I/O 處理：碎形化增量傳輸函式 (點一題、彈一窗、送雲端)
+        // 3. 核心 I/O 處理：碎形化增量傳輸函式
         async function commitFragment(status, key = null, value = null) {
             const payloadData = {};
             if (key && value) { payloadData[key] = value; }
@@ -52,7 +53,7 @@
 
             console.log("📡 [Input] 發送碎形數據:", inputPacket);
 
-            // 🌟 核心加強版彈出視窗
+            // 🌟 彈出視窗：讓數據現形
             alert(
                 `⚡ [防災積木數據交換成功！]\n\n` +
                 `🆔 去識別化專屬 ID:\n   ${inputPacket.report_id}\n\n` +
@@ -61,12 +62,11 @@
             );
 
             try {
-                // 🔥【將下方網址替換為你在 Firebase 複製的資料庫網址】🔥
-                // 我們利用 /reports/${reportId}.json 的結構，讓同一個人的資料會自動 UPSERT 疊加在一起！
-                const firebaseURL = `https://mata-disaster-db-default-rtdb.firebaseio.com/reports/${reportId}.json`;
+                // 🔥【請在此處替換為你建立的 Firebase 資料庫網址】🔥
+                const firebaseURL = `https://【你的Firebase資料庫網址】.firebaseio.com/reports/${reportId}.json`;
                 
                 await fetch(firebaseURL, {
-                    method: 'PATCH', // 使用 PATCH 才能做到碎形數據增量疊加
+                    method: 'PATCH', // 使用 PATCH 做到碎形數據增量疊加
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
                         report_id: reportId,
@@ -74,7 +74,6 @@
                         latitude: gpsLocation.latitude,
                         longitude: gpsLocation.longitude,
                         updated_at: new Date().toISOString(),
-                        // 動態把新回答的情資揉進雲端
                         [`accumulated_intel/${key || 'init'}`]: value || 'initialized'
                     })
                 });
@@ -193,24 +192,12 @@
                 if(el) el.classList.add('hidden');
             });
         }
-
-        function startRoute(route, status) {
-            commitFragment(status);
-            hideAll();
-            document.getElementById(`step-${route}-q1`).classList.remove('hidden');
-        }
-
-        function triggerRouteC() {
-            commitFragment('C_SAFE_FINAL');
-            hideAll();
-            document.getElementById('step-C-screen').classList.remove('hidden');
-        }
-
+        function startRoute(route, status) { commitFragment(status); hideAll(); document.getElementById(`step-${route}-q1`).classList.remove('hidden'); }
+        function triggerRouteC() { commitFragment('C_SAFE_FINAL'); hideAll(); document.getElementById('step-C-screen').classList.remove('hidden'); }
         function nextA1(ans) { commitFragment('A_SOS_URGENCY', 'life_danger', ans); hideAll(); document.getElementById('step-A-q2').classList.remove('hidden'); }
         function nextA2(ans) { commitFragment('A_SOS_MEDICAL', 'vulnerable', ans); hideAll(); document.getElementById('step-A-q3').classList.remove('hidden'); }
         function nextA3(ans) { commitFragment('A_SOS_SCALE', 'people_count', ans); hideAll(); document.getElementById('step-A-q4').classList.remove('hidden'); }
         function endA(ans) { commitFragment('A_SOS_ENV_FINAL', 'environment', ans); hideAll(); document.getElementById('step-end-screen').classList.remove('hidden'); }
-
         function nextB1(ans) { commitFragment('B_INTEL_TYPE', 'disaster_type', ans); hideAll(); document.getElementById('step-B-q2').classList.remove('hidden'); }
         function nextB2(ans) { commitFragment('B_INTEL_TRAFFIC', 'traffic_status', ans); hideAll(); document.getElementById('step-B-q3').classList.remove('hidden'); }
         function nextB3(ans) { commitFragment('B_INTEL_TARGET', 'damaged_target', ans); hideAll(); document.getElementById('step-B-q4').classList.remove('hidden'); }
